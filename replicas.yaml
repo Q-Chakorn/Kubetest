@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: ReplicaSet # ประเภทของ Resource
+metadata:
+  name: first-rs # ชื่อของ ReplicaSet
+  labels:
+    app: first-rs # Label ของ ReplicaSet
+spec:
+  replicas: 3 # จำนวน Pod
+  selector:
+    matchLabels:
+      app: first-rs-pod # Label ของ Pod ที่จะให้ ReplicaSet คอยเฝ้าดู
+  template:
+    metadata:
+      labels:
+        app: first-rs-pod # Label ของ Pod
+    spec:
+      containers:
+      - name: nginx # ชื่อของ Container
+        image: nginx # ชื่อของ Image
+        ports:
+        - containerPort: 80 # port ของ container

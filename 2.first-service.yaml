@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: test
+  name: first-svc
+spec:
+  ports:
+  - port: 80  #Port ของ Service
+    protocol: TCP # Protocol
+    targetPort: 80 # Port ของ container ที่จะให้ Service นั้นเชื่อมต่อ
+  selector: # ส่่วนทที่ใช้ระบุ Label ของ Pod
+    app: first-pod # ชื่อ Label ของ Pod ที่จะให้ Service นั้นเชื่อมต่อ

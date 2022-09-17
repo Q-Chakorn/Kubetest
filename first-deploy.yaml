@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: test
+  name: first-pod
+  labels:
+    app: first-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: first-pod
+  template:
+    metadata:
+      labels:
+        app: first-pod
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
