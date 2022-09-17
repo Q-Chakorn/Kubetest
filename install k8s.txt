@@ -1,0 +1,85 @@
+----------Docker install
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+ sudo apt-get update
+ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+***ถ้าโหลดไม่ได้ห้แก้ proxy
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+
+sudo apt-get update
+#sudo apt-get install docker-ce
+sudo apt-get install docker-ce=5:20.10.7~3-0~ubuntu-bionic docker-ce-cli=5:20.10.7~3-0~ubuntu-bionic 
+
+sudo systemctl enable docker
+
+----------------- remove docker -------------------
+sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli
+sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce
+
+sudo rm -rf /var/lib/docker /etc/docker
+sudo rm /etc/apparmor.d/docker
+sudo groupdel docker
+sudo rm -rf /var/run/docker.sock
+
+--------------------------------------------------
+Kubernetes install as root:
+
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+---------------
+sudo apt-get update
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+****ถ้ามี error <>curl<> sudo apt-get install curl
+sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+----------------
+
+sudo apt-get install kubeadm=1.21.2-00 kubelet=1.21.2-00 kubectl=1.21.2-00
+
+sudo apt-mark hold kubeadm kubelet kubectl
+
+kubeadm version,--version ตรวจสอบเวอร์ชั่น
+
+sudo swapoff –a ปิดการ swap memory ทุกเครื่องในระบบ
+
+** initial ip nginx load balance ** สำหรับ MASTER ตัวแรก
+sudo kubeadm init --control-plane-endpoint "LOAD_BALANCER_DNS:LOAD_BALANCER_PORT" --upload-certs
+sudo kubeadm init --control-plane-endpoint "192.168.0.58:6443" --upload-certs --v=5
+
+*** initial ip ** 1 master
+kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=192.168.143.165
+
+**** คำสั่งนี้ต้อง run ให้ได้
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+****  สำหรับตัวที่ 2 3 4 อื่นๆ *********
+kubeadm join 192.168.0.58:6443 --token ..... ได้จาก master node แรก
+
+***** เพิ่ม addon network ให้กับ master nodes******
+https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises
+
+curl https://docs.projectcalico.org/manifests/calico.yaml -O
+kubectl apply -f calico.yaml
+
+----------------
+
+
+
+
+
